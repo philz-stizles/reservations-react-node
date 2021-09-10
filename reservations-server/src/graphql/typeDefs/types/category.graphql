@@ -1,0 +1,35 @@
+type Query {
+  categories: [Category]
+}
+
+type Mutation {
+  createCategory(data: CategoryCreateInput): CategoryMutationResponse
+  updateCategory(data: CategoryUpdateInput): CategoryMutationResponse
+  archiveCategory(id: String): [Category]
+}
+
+type Category {
+  _id: ID
+  name: String
+  description: String!
+  slug: String
+  createdAt: String
+  updatedAt: String
+}
+
+input CategoryCreateInput {
+  name: String
+  description: String
+}
+
+input CategoryUpdateInput {
+  _id: String
+  description: String
+}
+
+type CategoryMutationResponse implements IResponse {
+  statusCode: Int
+  status: Boolean
+  message: String
+  data: Category
+}

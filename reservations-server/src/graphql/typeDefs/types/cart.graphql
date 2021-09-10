@@ -1,0 +1,19 @@
+# Cart Object type
+type Cart {
+  _id: ID
+  products: [CartProduct]!
+  totalAmount: Float!
+  totalAfterDiscount: Float
+  createdBy: User!
+  createdAt: String
+  updatedAt: String
+}
+
+# CartProduct Object type
+type CartProduct {
+  _id: ID
+  product: ID
+  count: Int
+  color: String
+  price: Float
+}

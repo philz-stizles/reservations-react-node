@@ -1,0 +1,24 @@
+.article-card {
+  margin-bottom: 5rem;
+}
+
+.article-card__meta {
+  color: #3a3a3a;
+  margin: 1rem 0;
+}
+
+.article-card__title {
+  margin: 1rem 0;
+  font-size: 23px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.article-card__content {
+  margin-bottom: 24px;
+}
+
+.article-card__link {
+  color: #fca500;
+  font-weight: 500;
+}

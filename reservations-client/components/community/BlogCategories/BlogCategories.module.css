@@ -1,0 +1,17 @@
+.categoryList {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  padding: 1.5rem 0;
+  margin: 3rem 0;
+}
+
+.categoryName {
+  font-size: 1.6rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.categoryName:not(:last-of-type) {
+  margin-right: 2.5rem;
+}

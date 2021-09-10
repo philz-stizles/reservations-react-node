@@ -1,0 +1,48 @@
+# Query type
+type Query {
+  roles: [Role]
+}
+
+# Mutation type
+type Mutation {
+  createRole(data: RoleCreateInput): RoleMutationResponse
+  updateRole(data: RoleUpdateInput): RoleMutationResponse
+  deactivateRole(id: String): [Role]
+}
+
+type Subscription {
+  deactivatedRole: Role
+}
+
+# Role Object type
+type Role {
+  _id: ID
+  name: String
+  description: String
+  permissions: [Permission]
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input RoleCreateInput {
+  name: String
+  description: String
+  permissions: [ID]
+  isActive: Boolean
+}
+
+input RoleUpdateInput {
+  _id: ID
+  name: String
+  description: String
+  permissions: [ID]
+  isActive: Boolean
+}
+
+type RoleMutationResponse implements IResponse {
+  statusCode: Int
+  status: Boolean
+  message: String
+  data: Role
+}

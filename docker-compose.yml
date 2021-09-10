@@ -1,0 +1,91 @@
+version: '3.7'
+services:
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
+  #   # container_name: es01
+  #   environment:
+  #     - node.name=elasticsearch-1
+  #     - cluster.name=hs-elasticsearch-cluster
+  #     # - xpack.security.enabled=false
+  #     - discovery.type=single-node
+  #     # - discovery.seed_hosts=es02,es03
+  #     # - cluster.initial_master_nodes=es01
+  #     - bootstrap.memory_lock=true
+  #     - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #     nofile:
+  #       soft: 65536
+  #       hard: 65536
+  #   cap_add:
+  #     - IPC_LOCK
+  #   volumes:
+  #     - elasticsearch-data:/usr/share/elasticsearch/data
+  #   ports:
+  #     - 9200:9200
+  #   networks:
+  #     - elastic
+  # kibana:
+  #   # container_name: kibana
+  #   image: docker.elastic.co/kibana/kibana:7.4.0
+  #   environment:
+  #     - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+  #   networks:
+  #     - elastic
+  #   ports:
+  #     - 5601:5601
+  #   depends_on:
+  #     - elasticsearch
+  reservations-server:
+    container_name: reservations-server
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev # The name of the docker config file
+      context: ./reservations-server # Where the docker config file is located
+    volumes:
+      # - /app/node_modules
+      - ./reservations-server:/app
+    ports:
+      - '3001:3000'
+    links:
+      - mongo
+    depends_on:
+      - postgres
+    environment:
+      - PORT=3000
+      - DB_HOST=postgres
+      - DB_NAME=reservations-dev-db
+      - DB_USERNAME=reservations-admin
+      - DB_PASSWORD=P@ssw0rd
+      - DB_DIALECT=postgres
+      - JWT_AUTH_SECRET=nh7dd4456vhbgkjvdDWQZXMKOY6FDEAmkbZMOPI
+  reservations-client:
+    container_name: reservations-client
+    image: devdezyn/reservations-client
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev # The name of the docker config file
+      context: ./reservations-client # Where the docker config file is located
+    volumes:
+      # - /app/node_modules
+      - ./reservations-client:/usr/app
+    ports:
+      - '8080:3000'
+    depends_on:
+      - reservation-server
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: reservations-admin
+      POSTGRES_PASSWORD: P@ssw0rd
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./volumes/postgres_data:/var/lib/postgresql/data
+  redis:
+    image: redis
+    volumes:
+      - ./volumes/redis_data:/data/db
+# volumes: ./volumes/postgres_data

@@ -1,0 +1,27 @@
+.formArea {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  grid-gap: 3rem;
+  grid-template-areas: 'title right' 'content right' 'image right';
+  margin-top: 2rem;
+}
+
+.formArea__title,
+.formArea__content,
+.formArea__right {
+  box-shadow: 0 2px 4px rgb(14 30 37 / 12%);
+  background-color: #fff;
+  padding: 1.5rem;
+}
+
+.formArea__title {
+  grid-area: title;
+}
+
+.formArea__content {
+  grid-area: content;
+}
+
+.formArea__right {
+  grid-area: right;
+}

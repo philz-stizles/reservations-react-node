@@ -1,0 +1,48 @@
+.card {
+  background-color: #fff;
+  /* padding: 1rem; */
+  padding: 1rem;
+  /* box-shadow: 4px 4px 10px rgba(0, 0, 0, .1); */
+  /* box-shadow: 0 2px 4px 0 rgb(62, 57, 107, .3); */
+  box-shadow: 0 2px 4px rgb(14 30 37 / 12%);
+  border-radius: 2px;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: 70% auto;
+  align-items: center;
+}
+
+.card__head span {
+  display: block;
+  text-transform: uppercase;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.card__head small {
+  font-weight: 600;
+  color: #555;
+}
+
+.card__info h2 {
+  font-size: 2.2rem;
+  color: #333;
+}
+
+.card__chart i {
+  font-size: 4.8rem;
+}
+
+.card__chart.success i {
+  color: seagreen;
+}
+
+.card__chart.danger i {
+  color: tomato;
+}
+
+.card__chart.info i {
+  color: orangered;
+}

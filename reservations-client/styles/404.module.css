@@ -1,0 +1,30 @@
+.notFoundPage {
+  min-height: 100vh;
+  height: 100vh;
+  margin: auto;
+  display: flex;
+  align-items: center;
+}
+
+.info {
+  text-align: center;
+}
+
+.info .info__header {
+  font-size: 14rem;
+  line-height: 1.2;
+  color: #353157;
+}
+
+.info .info__content {
+  margin-bottom: 1.8rem;
+  font-weight: 600;
+}
+
+.info .info__button {
+  background-color: #353157;
+  color: #fff;
+  padding: .8rem 2rem;
+  border-radius: 5px;
+  margin-bottom: 1.8rem;
+}

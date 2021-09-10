@@ -1,0 +1,45 @@
+# Query type
+type Query {
+  coupons: [Coupon]
+}
+
+# Mutation type
+type Mutation {
+  createCoupon(data: CouponCreateInput): CouponMutationResponse
+  updateCoupon(data: CouponUpdateInput): CouponMutationResponse
+  archiveCoupon(id: String): [Coupon]
+}
+
+type Subscription {
+  createdCoupon: Coupon
+}
+
+# Coupon Object type
+type Coupon {
+  _id: ID
+  name: String
+  expiry: String
+  discount: Int
+  createdBy: User
+  createdAt: String
+  updatedAt: String
+}
+
+input CouponCreateInput {
+  name: String
+  expiry: String
+  discount: Int
+}
+
+input CouponUpdateInput {
+  _id: ID
+  expiry: String
+  discount: Int
+}
+
+type CouponMutationResponse implements IResponse {
+  statusCode: Int
+  status: Boolean
+  message: String
+  data: Coupon
+}

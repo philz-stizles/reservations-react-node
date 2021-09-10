@@ -1,0 +1,66 @@
+# Query type
+type Query {
+  products: [Product]
+}
+
+# Mutation type
+type Mutation {
+  createProduct(data: ProductCreateInput): ProductMutationResponse
+  updateProduct(data: ProductUpdateInput): ProductMutationResponse
+  archiveProduct(id: String): [Product]
+  uploadProductFile(upload: Upload!): Response
+  removeProductFile(publicId: String): Response
+}
+
+type Product {
+  _id: ID
+  title: String
+  slug: String
+  description: String
+  price: Float
+  category: Category
+  subs: [SubCategory]
+  quantity: Int
+  sold: Int
+  images: [FileUpload]
+  shipping: String
+  color: [String]
+  brand: String
+  ratings: [UserRating]
+  createdAt: String
+  updatedAt: String
+}
+
+input ProductCreateInput {
+  title: String
+  description: String
+  price: Float
+  category: ID
+  subs: [ID]
+  quantity: Int
+  images: [Upload!]!
+  shipping: Boolean
+  color: [String]
+  brand: String
+}
+
+input ProductUpdateInput {
+  _id: String
+  title: String
+  description: String
+  price: Float
+  category: ID
+  subs: [ID]
+  quantity: Int
+  images: [Upload!]!
+  shipping: Boolean
+  color: [String]
+  brand: String
+}
+
+type ProductMutationResponse implements IResponse {
+  statusCode: Int
+  status: Boolean
+  message: String
+  data: Product
+}

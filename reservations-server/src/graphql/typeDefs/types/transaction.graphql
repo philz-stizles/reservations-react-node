@@ -1,0 +1,34 @@
+# Query type
+type Query {
+  transactions: [Transaction]
+}
+
+# Mutation type
+type Mutation {
+  createTransaction(data: TransactionCreateInput): TransactionMutationResponse
+}
+
+# Transaction Object type
+type Transaction {
+  _id: ID
+  transactionId: String
+  order: Order
+  createdBy: User
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input TransactionCreateInput {
+  transactionId: String
+  order: ID
+  createdBy: ID
+  status: String
+}
+
+type TransactionMutationResponse implements IResponse {
+  statusCode: Int
+  status: Boolean
+  message: String
+  data: Transaction
+}

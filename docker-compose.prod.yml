@@ -1,0 +1,36 @@
+version: '3.7'
+services:
+  reservations-server:
+    container_name: reservations-server
+    restart: always
+    build:
+      dockerfile: Dockerfile # The name of the docker config file
+      context: ./reservations-server # Where the docker config file is located
+    # volumes:
+    #   # - /app/node_modules
+      - ./reservations-server:/app
+    ports:
+      - '3000:80'
+    links:
+      - mongo
+    environment:
+      - PORT=80
+      - MONGODB_URI=mongodb://mongo:27017/HospitalityDevDB
+      - JWT_AUTH_SECRET=nh7dd4456vhbgkjvdDWQZXMKOY6FDEAmkbZMOPI
+  reservations-client:
+    container_name: reservations-client
+    image: devdezyn/reservations-client
+    restart: always
+    build:
+      dockerfile: Dockerfile # The name of the docker config file
+      context: ./reservations-client # Where the docker config file is located
+    ports:
+      - '8080:80'
+  mongo:
+    container_name: mongo
+    image: mongo
+    restart: always
+    volumes:
+      - ./volumes/mongo_data:/data/db
+    ports:
+      - '27017:27017'

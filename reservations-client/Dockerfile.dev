@@ -1,0 +1,18 @@
+# Dockerfile
+
+# base image
+FROM node:alpine
+
+# create & set working directory
+RUN mkdir -p /usr/app
+WORKDIR /usr/app
+
+# copy source files
+COPY . .
+
+# install dependencies
+RUN yarn install
+
+# start app
+EXPOSE 8080
+CMD yarn run dev

@@ -1,0 +1,111 @@
+::-webkit-scrollbar {
+  width: 0.5rem;
+  height: 0.6rem;
+}
+
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px #c6d0fd;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c6d0fd;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5850ec;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+}
+
+html {
+  box-sizing: border-box;
+  font-size: 62.5%;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  /* font-family: 'Jost', sans-serif; */
+  /* font-family: 'Sora', sans-serif; */
+  /* font-family: 'Montserrat', sans-serif; */
+  /* font-family: 'Space Grotesk', sans-serif; */
+  font-family: 'Libre Franklin', sans-serif;
+  /* font-family: 'Overpass', sans-serif; */
+  /* font-family: 'Inter', sans-serif; */
+  /* font-family: 'Poppins', sans-serif; */
+  font-size: 1.4rem;
+  line-height: 1.6;
+  font-weight: 400;
+  overflow-x: hidden;
+}
+
+body,
+#__next {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* a:hover, 
+a:active, 
+a:focus {
+  text-decoration: none;
+} */
+
+button {
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+ul {
+  list-style: none;
+}
+
+a,
+button,
+input {
+  outline: none;
+}
+
+input,
+button,
+select,
+textarea {
+  font-family: inherit !important;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.center {
+  margin: auto;
+  text-align: center;
+}
+
+.ql-editor {
+  min-height: 25rem;
+}
+
+.img-responsive {
+  width: 100%;
+  height: auto;
+}

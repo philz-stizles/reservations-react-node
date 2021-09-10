@@ -1,0 +1,24 @@
+.footer {
+  background-color: #E5EEFF;
+  padding: 10rem 0;
+}
+
+.footer__content {
+  display: grid;
+
+  grid-template-columns: repeat(6, 1fr);
+  grid-gap: 2rem;
+}
+
+.content__header{
+  margin-bottom: 1.2rem;
+}
+
+.content__item{
+  margin-bottom: 1.2rem;
+}
+
+.content i{
+  font-size: 3.2rem;
+  color: black;
+}

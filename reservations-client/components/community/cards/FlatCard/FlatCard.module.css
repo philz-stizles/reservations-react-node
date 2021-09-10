@@ -1,0 +1,37 @@
+.flat-card__image {
+  border-radius: 5px;
+  margin-bottom: 26px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.flat-card__image img{
+  width: 100%;
+  border-radius: 9px;
+  object-fit: cover;
+  height: 100%;
+  transform: scale(1, 1);
+  transition: .4s;
+}
+
+.flat-card__sub-title {
+  /* font-size: 1.1px; */
+  text-transform: uppercase;
+  letter-spacing: .22rem;
+  color: #3a3a3a;
+  margin-bottom: .7rem;
+  font-weight: 500;
+}
+
+.flat-card__title {
+  font-size: 1.9rem;
+  color: #3a3a3a;
+  margin-bottom: 1.5rem;
+  line-height: 2.4rem;
+  font-weight: 600;
+}
+
+.content {
+  font-size: 1.6rem;
+  color: #000;
+}

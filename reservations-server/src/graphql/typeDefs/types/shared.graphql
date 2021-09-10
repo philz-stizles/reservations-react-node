@@ -1,0 +1,115 @@
+type QueryResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+}
+
+# User - Object type
+type User {
+  _id: ID
+  fullname: String
+  username: String
+  name: String! # Scalar type
+  email: String! # Scalar type
+  avatar: String! # Scalar type
+  role: Role! # Scalar type
+  isActive: Boolean! # Scalar type
+}
+
+type Customer {
+  _id: ID
+  cart: [CartProduct]
+  wishlist: [ID]
+  addresses: [Address]
+  account: User
+  phone: String
+  createdAt: String
+  updatedAt: String
+}
+
+type Vendor {
+  _id: ID
+  name: String
+  logo: String
+  bio: String
+  locations: [String]!
+  images: [FileUpload]!
+  users: [ID]
+  createdAt: String
+  updatedAt: String
+}
+
+type Review {
+  _id: ID
+  review: String
+  rating: Int
+  product: Product
+  createdBy: User
+  createdAt: String
+  updatedAt: String
+}
+
+type Audit {
+  _id: ID
+  action: String
+  ip: String
+  method: String
+  type: String
+  payload: String
+  createdBy: ID
+  createdAt: String
+}
+
+type Address {
+  street: String
+  city: String
+  state: String
+  country: String
+  main: Boolean
+}
+
+type FileUpload {
+  url: String
+  uploadId: String
+  main: Boolean
+}
+
+type UserRating {
+  star: Int
+  postedBy: User
+}
+
+interface MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+}
+
+interface IResponse {
+  statusCode: Int
+  status: Boolean
+  message: String
+}
+
+type Response {
+  statusCode: Int
+  status: Boolean
+  message: String
+}
+
+# The implementation for this scalar is provided by the
+# 'GraphQLUpload' export from the 'graphql-upload' package
+# in the resolver map below.
+scalar Upload
+
+type File {
+  filename: String!
+  mimetype: String!
+  encoding: String!
+}
+
+# enum RoleType {
+#   CUSTOMER
+#   BUSINESS
+#   ADMIN
+# }

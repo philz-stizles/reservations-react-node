@@ -1,0 +1,28 @@
+.sidebar {
+  background-color: #1a202e;
+  color: #fff;
+  width: 28rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  padding: 1rem 1.5rem;
+  z-index: 20;
+  transition: left 0.3s;
+  overflow-y: auto;
+}
+
+.isClosed {
+  left: -100%;
+}
+
+@media only screen and (max-width: 1124px) {
+  .sidebar {
+    left: -100%;
+    z-index: 30;
+  }
+
+  .isClosed {
+    left: 0;
+  }
+}

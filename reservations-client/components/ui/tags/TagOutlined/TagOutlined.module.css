@@ -1,0 +1,36 @@
+.link {
+  border-radius: 9px;
+  transition: 0.4s;
+  display: inline-block;
+  height: 31px;
+  border-radius: 18px;
+  border: solid 1px rgba(151, 151, 151, 0.52);
+  color: #5d5d5d;
+  padding: 0px 15px;
+  line-height: 29px;
+  margin-right: 6px;
+  margin-bottom: 6px;
+  font-family: 'gilroy-medium', sans-serif;
+  font-size: 13px;
+  position: relative;
+}
+
+.link:hover {
+  border-radius: 9px;
+}
+
+.link span {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  background-color: crimson;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  font-size: 1rem;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}

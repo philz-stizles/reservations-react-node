@@ -1,0 +1,15 @@
+type Order {
+  _id: ID
+  products: [OrderProduct]
+  # paymentIntent: any
+  status: String
+  createdBy: User
+  createdAt: String
+  updatedAt: String
+}
+
+type OrderProduct {
+  product: ID
+  count: Int
+  color: String
+}

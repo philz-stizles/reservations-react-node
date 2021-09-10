@@ -1,0 +1,36 @@
+type Query {
+  subCategories: [SubCategory]
+}
+
+type Mutation {
+  createSubCategory(data: SubCategoryCreateInput): SubCategoryMutationResponse
+  updateSubCategory(data: SubCategoryUpdateInput): SubCategoryMutationResponse
+  archiveSubCategory(id: String): [SubCategory]
+}
+
+type SubCategory {
+  _id: ID
+  name: String
+  slug: String
+  category: SubCategory
+  createdBy: User
+  createdAt: String
+  updatedAt: String
+}
+
+input SubCategoryCreateInput {
+  name: String
+  category: ID
+}
+
+input SubCategoryUpdateInput {
+  name: String
+  category: ID
+}
+
+type SubCategoryMutationResponse implements IResponse {
+  statusCode: Int
+  status: Boolean
+  message: String
+  data: SubCategory
+}

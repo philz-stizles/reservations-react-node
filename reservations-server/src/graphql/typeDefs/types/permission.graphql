@@ -1,0 +1,12 @@
+# Query type
+type Query {
+  permissions: [Permission]
+}
+
+# Permission Object type
+type Permission {
+  _id: ID
+  name: String
+  description: String
+  createdAt: String
+}

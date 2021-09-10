@@ -1,0 +1,16 @@
+.main-content {
+  margin-left: 28rem;
+  transition: margin-left 0.3s;
+}
+
+.main-content__main {
+  /* padding: 1.5rem; */
+  padding: 3rem;
+  background: #f1f5f9;
+  min-height: calc(100vh - 6rem);
+  margin-top: 6rem;
+}
+
+.sidebar-closed {
+  margin-left: 0;
+}
