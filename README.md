@@ -29,20 +29,35 @@
 
   ```bash
     GRANT ALL PRIVILEGES ON DATABASE "database_name" to my_username;
+    ALTER USER my_username CREATEDB; // Not recommended
 
   ```
 
 ## Sequelize
 
+npm install sequelize pg pg-hstore cors
+npm install sequelize pg pg-hstore cors @types/node @types/validator
+npm i — save-dev sequelize-test-helpers sinon
+
 npm install -g sequelize-cli
 OR
 npm install --save-dev sequelize-cli
 
-npx sequelize-cli
+npx sequelize-cli init
 
-npx sequelize-cli db:migrate
+- Migration
 
-npx sequelize-cli db:migrate:undo
+  - Run migration:
+
+    ```bash
+    npx sequelize-cli db:migrate
+    ```
+
+  - Undo migration:
+
+    ```bash
+    npx sequelize-cli db:migrate:undo
+    ```
 
 ## Resources
 
@@ -217,3 +232,4 @@ Note: Whenever we delete or restart the pod running MongoDB, we will lose all of
   Install package: npm install stripe
 
 # hospitality-app
+# reservations-react-node
