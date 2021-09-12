@@ -1,45 +1,80 @@
-import { DataTypes, Model, Sequelize } from 'sequelize';
-import sequelize from '@src/db/config';
+import { DataTypes, Model, Optional } from 'sequelize';
+import db from '@src/db';
 
-class Address extends Model {}
+interface AddressAttributes {
+  id: number;
+  userId: number;
+  address: string;
+  city: string;
+  state: string;
+  code: string;
+  country: string;
+  isPrimary: boolean;
+}
+
+// Some attributes are optional in `Address.build` and `Address.create` calls
+interface AddressCreationAttributes extends Optional<AddressAttributes, 'id'> {}
+
+class Address
+  extends Model<AddressAttributes, AddressCreationAttributes>
+  implements AddressAttributes
+{
+  public id!: number;
+  public userId!: number;
+  public address!: string;
+  public city!: string;
+  public state!: string;
+  public code!: string;
+  public country!: string;
+  public isPrimary!: boolean;
+
+  // timestamps!
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
 
 Address.init(
   {
-    hourly_rate: {
-      type: DataTypes.INTEGER,
+    id: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    userId: {
+      type: DataTypes.INTEGER.UNSIGNED,
+    },
+    address: {
+      type: DataTypes.STRING(50),
       allowNull: false,
     },
-    expected_checkin_time: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    expected_checkout_time: {
-      type: DataTypes.DATE,
-    },
-    user: {
-      type: DataTypes.STRING,
+    city: {
+      type: DataTypes.STRING(50),
       allowNull: false,
     },
-    room_type: {
-      type: DataTypes.STRING,
+    state: {
+      type: DataTypes.STRING(50),
       allowNull: false,
     },
-    weekday_percent: {
-      type: DataTypes.INTEGER,
+    code: {
+      type: DataTypes.STRING(50),
       allowNull: false,
     },
-    weekend_percent: {
-      type: DataTypes.INTEGER,
+    country: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+    },
+    isPrimary: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
     },
   },
   {
     // Other model options go here
-    sequelize, // We need to pass the connection instance
-    timestamps: true,
+    sequelize: db.sequelize, // We need to pass the connection instance
+    createdAt: true,
+    updatedAt: false,
     modelName: 'Address', // We need to choose the model name
-    tableName: 'Addresses',
+    tableName: 'addresses',
   }
 );
 

@@ -1,47 +1,44 @@
-import { DataTypes, Model, Sequelize } from 'sequelize';
-import sequelize from '@src/db/config';
+import { DataTypes, Model, Optional } from 'sequelize';
+import db from '@src/db';
 
-class Token extends Model {}
+interface TokenAttributes {
+  id: number;
+  token: string;
+}
+
+// Some attributes are optional in `Token.build` and `Token.create` calls
+interface TokenCreationAttributes extends Optional<TokenAttributes, 'id'> {}
+
+class Token
+  extends Model<TokenAttributes, TokenCreationAttributes>
+  implements TokenAttributes
+{
+  public id!: number;
+  public token!: string;
+
+  // timestamps!
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
 
 Token.init(
   {
-    // Model attributes are defined here
-    // status: TokenStatus,
-    hourly_rate: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
+    id: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      autoIncrement: true,
+      primaryKey: true,
     },
-    expected_checkin_time: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    expected_checkout_time: {
-      type: DataTypes.DATE,
-    },
-    user: {
+    token: {
       type: DataTypes.STRING,
-      allowNull: false,
-    },
-    room_type: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    weekday_percent: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    weekend_percent: {
-      type: DataTypes.INTEGER,
       allowNull: false,
     },
   },
   {
     // Other model options go here
-    sequelize, // We need to pass the connection instance
+    sequelize: db.sequelize, // We need to pass the connection instance
     timestamps: true,
     modelName: 'Token', // We need to choose the model name
-    tableName: 'Tokens',
+    tableName: 'tokens',
   }
 );
 

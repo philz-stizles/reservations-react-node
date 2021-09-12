@@ -1,23 +1,24 @@
 import express from 'express';
 import {
-  addUserCart,
-  getUserCart,
-  emptyUserCart,
-  applyCouponToUserCart,
-} from '@src/controllers/cart.controllers';
+  create,
+  list,
+  read,
+  update,
+  remove,
+} from '@src/controllers/v1/role.controllers';
 import { authenticate } from '@src/middlewares/auth.middlewares';
 
 const router = express.Router();
 
 router.use(authenticate);
 
-router
-  .route('/')
-  .post(addUserCart) // save cart
-  .get(getUserCart) // get cart
-  .delete(emptyUserCart); // empty cart
+router.route('/').post(authenticate, create).get(list);
 
 // Apply coupon
-router.post('/coupon', applyCouponToUserCart);
+router
+  .route('/:id')
+  .get(read)
+  .put(update) // get cart
+  .delete(remove); // empty cart;
 
 export default router;

@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { IUserDocument } from '@src/models/user.model.old';
 import { generateToken } from './auth.utils';
 
 class APIFeatures {
@@ -74,16 +73,16 @@ const filterRequestBody = (body: any, ...allowedFields: string[]): any => {
 };
 
 const createAndSendToken = (
-  user: IUserDocument,
+  user: any,
   statusCode: number,
   res: Response
 ): void => {
-  const token = generateToken({ id: user._id });
+  const token = generateToken({ id: user.id });
 
   res.status(statusCode).json({
     status: true,
     data: {
-      loggedInUser: { id: user._id, email: user.email, name: user.name },
+      loggedInUser: { id: user.id, email: user.email, name: user.fullname },
       token,
     },
     message: 'Login successful',
@@ -91,13 +90,13 @@ const createAndSendToken = (
 };
 
 const createAndSendTokenWithCookie = (
-  user: IUserDocument,
+  user: any,
   statusCode: number,
   req: Request,
   res: Response,
   message: string
 ): void => {
-  const token = generateToken({ id: user._id });
+  const token = generateToken({ id: user.id });
   const expiresIn: any = process.env.JWT_AUTH_COOKIE_EXPIRES_IN;
   const cookieOptions = {
     expires: new Date(Date.now() + expiresIn * 24 * 60 * 60 * 1000),

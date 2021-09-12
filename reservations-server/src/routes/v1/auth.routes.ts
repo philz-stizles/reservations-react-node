@@ -12,7 +12,7 @@ import {
   resetPassword,
   changePassword,
   logoutCookie,
-} from '@src/controllers/auth.controllers';
+} from '@src/controllers/v1/auth.controllers';
 import validationRequest from '@src/validation/yup/middlewares/yup.validation.middleware';
 
 const router = express.Router();

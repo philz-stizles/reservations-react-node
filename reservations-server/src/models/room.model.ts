@@ -1,19 +1,5 @@
-import bcrypt from 'bcrypt';
-import {
-  Association,
-  DataTypes,
-  HasManyAddAssociationMixin,
-  HasManyCountAssociationsMixin,
-  HasManyCreateAssociationMixin,
-  HasManyGetAssociationsMixin,
-  HasManyHasAssociationMixin,
-  Model,
-  Optional,
-} from 'sequelize';
-import sequelize from '@src/db/config';
-import Address from '@src/models/address.model';
-import Token from '@src/models/token.model';
-import Role from '@src/models/role.model';
+import { DataTypes, Model, Optional } from 'sequelize';
+import db from '@src/db';
 
 interface RoomAttributes {
   id: number;
@@ -21,9 +7,10 @@ interface RoomAttributes {
   hourlyRate: number;
   weekdayPercent: number;
   weekendPercent: number;
-  quantity: number;
-  available: number;
-  isArchived: boolean;
+  quantity?: number;
+  available?: number;
+  isArchived?: boolean;
+  createdBy?: string;
 }
 
 // Some attributes are optional in `User.build` and `User.create` calls
@@ -41,6 +28,7 @@ class Room
   public quantity!: number;
   public available!: number;
   public isArchived!: boolean;
+  public createdBy!: string;
 
   // timestamps!
   public readonly createdAt!: Date;
@@ -85,12 +73,12 @@ Room.init(
       },
     },
     quantity: {
-      type: DataTypes.NUMBER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 1,
     },
     available: {
-      type: DataTypes.NUMBER,
+      type: DataTypes.INTEGER,
     },
     isArchived: {
       type: DataTypes.BOOLEAN,
@@ -98,9 +86,14 @@ Room.init(
       defaultValue: true,
       field: 'is_archived',
     },
+    createdBy: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      field: 'created_by',
+    },
   },
   {
-    sequelize, // We need to pass the connection instance
+    sequelize: db.sequelize, // We need to pass the connection instance
     tableName: 'rooms',
     createdAt: true,
     updatedAt: true,

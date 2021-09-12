@@ -1,4 +1,6 @@
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 import {
   Association,
   DataTypes,
@@ -10,30 +12,34 @@ import {
   Model,
   Optional,
 } from 'sequelize';
-import sequelize from '@src/db/config';
-import Address from '@src/models/address.model';
-import Token from '@src/models/token.model';
-import Role from '@src/models/role.model';
+import db from '@src/db';
+import Address from './address.model';
+import Token from './token.model';
+import Role from './role.model';
+import Transaction from './transaction.model';
+import Reservation from './reservation.model';
 
 // Define all the attributes in the User model
 interface UserAttributes {
-  id: number;
-  firstName: string;
-  lastName: string;
-  fullName: string;
+  id?: number;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
   username: string;
   email: string;
   avatar?: string;
   password?: string;
   confirmPassword?: string;
-  passwordChangedAt?: Date;
-  passwordResetToken: string | null;
-  passwordResetTokenExpiresAt?: number | null;
-  isActive: boolean;
+  passwordChangedAt: Date | undefined;
+  passwordResetToken?: string | undefined;
+  passwordResetTokenExpiresAt?: number | undefined;
+  primaryAddress?: number;
+  isActive?: boolean;
 }
 
 // Some attributes are optional in `User.build` and `User.create` calls
-interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
+interface UserCreationAttributes
+  extends Optional<UserAttributes, 'id' | 'passwordChangedAt'> {}
 
 class User
   extends Model<UserAttributes, UserCreationAttributes>
@@ -49,8 +55,9 @@ class User
   public password!: string | undefined;
   public confirmPassword!: string | undefined;
   public passwordChangedAt!: Date | undefined;
-  public passwordResetTokenExpiresAt!: number | null | undefined;
-  public passwordResetToken!: string | null;
+  public passwordResetTokenExpiresAt!: number | undefined;
+  public passwordResetToken!: string | undefined;
+  public primaryAddress?: number;
   public isActive!: boolean;
 
   // timestamps!
@@ -66,6 +73,12 @@ class User
   public countAddresses!: HasManyCountAssociationsMixin;
   public createAddress!: HasManyCreateAssociationMixin<Address>;
 
+  public getReservations!: HasManyGetAssociationsMixin<Reservation>; // Note the null assertions!
+  public addReservation!: HasManyAddAssociationMixin<Reservation, number>;
+  public hasReservation!: HasManyHasAssociationMixin<Reservation, number>;
+  public countReservations!: HasManyCountAssociationsMixin;
+  public createReservation!: HasManyCreateAssociationMixin<Reservation>;
+
   public getTokens!: HasManyGetAssociationsMixin<Token>; // Note the null assertions!
   public addToken!: HasManyAddAssociationMixin<Token, number>;
   public hasToken!: HasManyHasAssociationMixin<Token, number>;
@@ -80,15 +93,90 @@ class User
 
   // You can also pre-declare possible inclusions, these will only be populated if you
   // actively include a relation.
-  public readonly addresses?: Address[]; // Note this is optional since it's only populated when explicitly requested in code
+  public readonly addresses?: Address[];
+  public readonly reservations?: Reservation[]; // Note this is optional since it's only populated when explicitly requested in code
   public readonly tokens?: Token[]; // Note this is optional
-  public readonly roles?: Address[]; // Note this is optional
+  public readonly roles?: Role[]; // Note this is optional
 
   public static associations: {
     addresses: Association<User, Address>;
+    reservations: Association<User, Reservation>;
     tokens: Association<User, Token>;
     roles: Association<User, Role>;
   };
+
+  static async findByAuthentication(
+    email: string,
+    password: string
+  ): Promise<void | any> {
+    // You can use arrow functions here as we will not be requiring
+    // the 'this' reference
+    // eslint-disable-next-line no-use-before-define
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      throw new Error('Invalid Credentials');
+    }
+
+    const isMatch = await user.comparePassword(password);
+    // console.log(isMatch)
+    if (!isMatch) {
+      throw new Error('Invalid Credentials');
+    }
+
+    return user;
+  }
+
+  async comparePassword(password: string) {
+    try {
+      const isMatch = await bcrypt.compare(password, this.password as string);
+      return isMatch;
+    } catch (error: any | unknown) {
+      console.log(error.message);
+      return false;
+    }
+  }
+
+  isPasswordChangedAfterTokenGen(jwtTimestamp: number): boolean {
+    if (!this.passwordChangedAt) return false;
+    const passwordChangedAtInMilliseconds = this.passwordChangedAt.getTime();
+    const passwordChangedAtInSeconds = parseInt(
+      `${passwordChangedAtInMilliseconds / 1000}`,
+      10
+    );
+
+    return passwordChangedAtInSeconds > jwtTimestamp;
+  }
+
+  createPasswordResetToken(): string {
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    this.passwordResetToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+
+    this.passwordResetTokenExpiresAt = Date.now() + 10 * 60 * 1000;
+
+    return resetToken;
+  }
+
+  async generateAuthToken() {
+    const token = jwt.sign(
+      { id: this.id },
+      process.env.JWT_SECRET as string,
+      { expiresIn: +(process.env.JWT_SECRET_EXPIRES_IN as string) } // This has been defined in
+      // env variables in seconds 1800 => 30mins
+      // + is added to convert it from string to an integer as it will assume milliseconds
+      // if string is detected
+    );
+
+    // Store current login in DB, this strategy enable a user to login from multiple devices and stay logged unless
+    // the user logs out which will logout the current requesting device
+    // user.tokens = user.tokens.concat({ token });
+    // await user.save();
+
+    // Return generated token
+    return token;
+  }
 }
 
 // Validations are checks performed in the Sequelize level, in pure JavaScript.
@@ -107,11 +195,11 @@ User.init(
       primaryKey: true,
     },
     firstName: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(50),
       allowNull: false,
     },
     lastName: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(50),
       allowNull: false,
     },
     fullName: {
@@ -124,11 +212,11 @@ User.init(
       },
     },
     username: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(30),
       allowNull: true,
       unique: true, // Constraint - SequelizeUniqueConstraintError
       set(value: string) {
-        this.setDataValue('username', value.trim());
+        // this.setDataValue('username', value.trim());
       },
     },
     // Creating two objects with the same value will throw an error. The unique property can be either a
@@ -148,8 +236,9 @@ User.init(
       },
     },
     password: {
-      type: DataTypes.STRING(64),
+      type: DataTypes.STRING(120),
       allowNull: false,
+      // is: /^[0-9a-f]{64}$/i,
       validate: {
         len: [6, 50],
       },
@@ -184,17 +273,21 @@ User.init(
     },
     avatar: {
       type: DataTypes.STRING,
+      allowNull: false,
       defaultValue: 'default.jpg',
     },
-    // tokens: [{ token: { type: String, required: true } }],
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
       field: 'is_active',
     },
+    primaryAddress: {
+      type: DataTypes.INTEGER,
+      field: 'primary_address',
+    },
   },
   {
-    sequelize, // We need to pass the connection instance
+    sequelize: db.sequelize, // We need to pass the connection instance
     tableName: 'users',
     createdAt: true,
     updatedAt: true,
@@ -216,26 +309,77 @@ User.beforeCreate(async (user, options) => {
   const salt = await bcrypt.genSalt(12);
 
   // Encrypt password
-  const hashedPassword = await bcrypt.hash(user.password + user.username, salt);
+  const hashedPassword = await bcrypt.hash(user.password as string, salt);
   user.password = hashedPassword;
 });
 
 // Here we associate which actually populates out pre-declared `association` static and other methods.
+// Addresses - one-to-many.
 User.hasMany(Address, {
-  sourceKey: 'id',
-  foreignKey: 'userId',
-  as: 'addresses', // this determines the name in `associations`!
+  foreignKey: 'user_id', // this determines the name in `associations`!
+  as: 'addresses',
 });
-Address.belongsTo(User, { targetKey: 'id' });
+Address.belongsTo(User, { foreignKey: 'user_id' });
 
+// Tokens - one-to-many.
 User.hasMany(Token, {
   sourceKey: 'id',
-  foreignKey: 'userId',
+  foreignKey: 'user_id',
   as: 'tokens', // this determines the name in `associations`!
 });
-Token.belongsTo(User, { targetKey: 'id' });
+Token.belongsTo(User, { targetKey: 'id', foreignKey: 'user_id' });
 
-User.belongsToMany(Role, { through: 'UserRoles' });
-Role.belongsToMany(User, { through: 'UserRoles' });
+// Reservations - one-to-many.
+User.hasMany(Reservation, {
+  sourceKey: 'id',
+  foreignKey: 'user_id',
+  as: 'reservations', // this determines the name in `associations`!
+});
+Reservation.belongsTo(User, { targetKey: 'id', foreignKey: 'user_id' });
+
+// Transactions - one-to-many.
+User.hasMany(Transaction, {
+  sourceKey: 'id',
+  foreignKey: 'user_id',
+  as: 'transactions', // this determines the name in `associations`!
+});
+Transaction.belongsTo(User, { targetKey: 'id', foreignKey: 'user_id' });
+
+User.belongsToMany(Role, { through: 'userRoles' });
+Role.belongsToMany(User, { through: 'userRoles' });
 
 export default User;
+
+// schema.pre('save', async function (next) {
+//   const user = this as IUserDocument;
+//   // If password was not modified, do not encrypt
+//   if (!user.isModified('password') || user.isNew) return next(); // When you change password or create a new user,
+//   // set passwordChange date
+
+//   user.passwordChangedAt = new Date(Date.now() - 1000);
+
+//   return next();
+// });
+
+// schema.pre(/^find/, async next => {
+//   const user = this as IUserDocument;
+
+//   // this points to the current query
+//   user.find({ isActive: { $ne: false } }); // Not equal to false is different from is equal to true
+//   next();
+// });
+
+// schema.methods.toJSON = function () {
+//   const user = this as IUserDocument;
+
+//   // Create a JSON representation of the user
+//   const userObject = user.toObject();
+
+//   // Remove private data
+//   delete userObject.password;
+//   delete userObject.tokens;
+//   delete userObject.avatar; // Remove avatar here coz the data is large for JSON requests
+
+//   // Return public profile
+//   return userObject;
+// };

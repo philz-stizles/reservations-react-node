@@ -1,8 +1,9 @@
 import { Express } from 'express';
 import http from 'http';
+import chalk from 'chalk';
 import '../dotenv-config';
 import app from './app';
-import db from './db/init';
+import dbInit from '@src/db/init';
 import config from './config';
 import initSocketIO from './socket';
 // import initGraphQL from './graphql';
@@ -21,7 +22,7 @@ import initSocketIO from './socket';
   }
 
   // Initialize db.
-  db();
+  await dbInit();
 
   // initialize http server
   const httpServer = http.createServer(expressApp); // Now we have our own http instance
@@ -35,7 +36,9 @@ import initSocketIO from './socket';
 
   const PORT: number = parseInt(process.env.PORT as string, 10);
   const server = httpServer.listen(PORT, () => {
-    console.log(`🚀 Server running on ${PORT} ${process.env.NODE_ENV}`);
+    console.log(
+      chalk.green(`🚀 Server running on ${PORT} ${process.env.NODE_ENV}`)
+    );
   });
 
   process.on('unhandledRejection', (err?: Error) => {

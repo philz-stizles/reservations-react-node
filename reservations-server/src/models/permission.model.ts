@@ -1,48 +1,53 @@
-import { DataTypes, Model, Sequelize } from 'sequelize';
-import sequelize from '@src/db/config';
+import { DataTypes, Model, Optional } from 'sequelize';
+import db from '@src/db';
 
-class Role extends Model {}
+interface PermissionAttributes {
+  id: number;
+  name: string;
+  description: string;
+}
 
-Role.init(
+// Some attributes are optional in `Permission.build` and `Permission.create` calls
+interface PermissionCreationAttributes
+  extends Optional<PermissionAttributes, 'id'> {}
+
+class Permission
+  extends Model<PermissionAttributes, PermissionCreationAttributes>
+  implements PermissionAttributes
+{
+  public id!: number;
+  public name!: string;
+  public description!: string;
+
+  // timestamps!
+  public readonly createdAt!: Date;
+}
+
+Permission.init(
   {
-    // Model attributes are defined here
-    // status: RoleStatus,
-    hourly_rate: {
-      type: DataTypes.INTEGER,
+    id: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    name: {
+      type: DataTypes.STRING(50),
       allowNull: false,
     },
-    expected_checkin_time: {
-      type: DataTypes.DATE,
+    description: {
+      type: DataTypes.STRING(70),
       allowNull: false,
       defaultValue: DataTypes.NOW,
-    },
-    expected_checkout_time: {
-      type: DataTypes.DATE,
-    },
-    user: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    room_type: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    weekday_percent: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    weekend_percent: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
     },
   },
   {
     // Other model options go here
-    sequelize, // We need to pass the connection instance
-    timestamps: true,
-    modelName: 'Role', // We need to choose the model name
-    tableName: 'Roles',
+    sequelize: db.sequelize, // We need to pass the connection instance
+    createdAt: true,
+    updatedAt: false,
+    modelName: 'Permission', // We need to choose the model name
+    tableName: 'permissions',
   }
 );
 
-export default Role;
+export default Permission;

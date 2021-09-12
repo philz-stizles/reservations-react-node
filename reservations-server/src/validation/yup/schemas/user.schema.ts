@@ -2,7 +2,8 @@ import { object, string, ref } from 'yup';
 
 export const signupSchema = object({
   body: object({
-    fullname: string().required('Name is required'),
+    firstName: string().required('first name is required'),
+    lastName: string().required('last name is required'),
     password: string()
       .required('Password is required')
       .min(6, 'Password is too short - should be 6 chars minimum.')

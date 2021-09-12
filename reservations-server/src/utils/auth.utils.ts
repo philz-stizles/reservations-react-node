@@ -14,6 +14,7 @@ export const verifyToken = (
   // await promisify(jwt.verify)(token, process.env.JWT_AUTH_SECRET);
   return new Promise<any>((resolve, reject) => {
     jwt.verify(token, `${process.env.JWT_AUTH_SECRET}`, (err, decoded) => {
+      console.log(decoded);
       if (err) {
         reject(err);
       } else {

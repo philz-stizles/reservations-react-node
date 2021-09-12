@@ -18,14 +18,14 @@ import notFoundHandler from '@src/middlewares/notfound.middleware';
 // Routes
 import authRoutes from '@src/routes/v1/auth.routes';
 // import roleRoutes from '@src/routes/v1/role.routes';
-// import userRoutes from '@src/routes/v1/user.routes';
-// import roomRoutes from '@src/routes/v1/room.routes';
+import userRoutes from '@src/routes/v1/user.routes';
+import roomRoutes from '@src/routes/v1/room.routes';
+import reservationRoutes from '@src/routes/v1/reservation.routes';
 // import paymentRoutes from '@src/routes/v1/payment.routes';
 // import transactionRoutes from '@src/routes/v1/transaction.routes';
 // import couponRoutes from '@src/routes/v1/coupon.routes';
 // import makerCheckerRoutes from '@src/routes/v1/maker-checker.routes';
 // import auditRoutes from '@src/routes/v1/audit.routes';
-// import logRoutes from '@src/routes/v1/log.routes';
 
 // Initialize Server
 const app: Express = express();
@@ -148,8 +148,9 @@ app.use((req: Request, res: Response, next) => {
 const api = process.env.API_URL;
 
 app.use(`${api}/auth`, authRoutes);
-// app.use(`${api}/customers`, customerRoutes);
-// app.use(`${api}/vendors`, vendorRoutes);
+app.use(`${api}/users`, userRoutes);
+app.use(`${api}/rooms`, roomRoutes);
+app.use(`${api}/reservations`, reservationRoutes);
 // app.use(`${api}/sub-categories`, subCategoryRoutes);
 // app.use(`${api}/categories`, categoryRoutes);
 // app.use(`${api}/products`, productRoutes);

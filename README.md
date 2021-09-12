@@ -45,6 +45,12 @@ npm install --save-dev sequelize-cli
 
 npx sequelize-cli init
 
+- Creating your database with Sequelize:
+
+  ```bash
+  npx sequelize-cli db:create
+  ```
+
 - Migration
 
   - Run migration:
@@ -232,4 +238,5 @@ Note: Whenever we delete or restart the pod running MongoDB, we will lose all of
   Install package: npm install stripe
 
 # hospitality-app
+
 # reservations-react-node

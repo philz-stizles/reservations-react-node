@@ -1,15 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
-import HttpException from '../common/http.exception';
+import HttpException from '@src/errors/http.exception';
 
 const errorHandler = (
   error: HttpException,
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
-  const status = error.statusCode || error.status || 500;
+): Response<any, Record<string, any>> | void => {
+  const status = error.statusCode || 500;
 
-  res.status(status).send(error);
+  return res.status(status).send(error);
 };
 
 export default errorHandler;

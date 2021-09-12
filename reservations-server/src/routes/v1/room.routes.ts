@@ -5,7 +5,7 @@ import {
   update,
   read,
   remove,
-} from '@src/controllers/v1/room.controller';
+} from '@src/controllers/v1/room.controllers';
 import { authenticate } from '@src/middlewares/auth.middlewares';
 
 const router = express.Router();

@@ -1,27 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from 'express';
 import _ from 'lodash';
-import User from '../models/user.model.old';
+import User from '@src/models/user.model';
 import {
   filterRequestBody,
   createAndSendTokenWithCookie,
-} from '../utils/api.utils';
-import AppError from '../errors/app.error';
-import { generateToken } from '../utils/auth.utils';
-import * as factory from '../factories/handler.factory';
+} from '../../utils/api.utils';
+import AppError from '../../errors/app.error';
+import { generateToken } from '../../utils/auth.utils';
 import { IAuthRequest } from '@src/interfaces/AuthRequest';
-import Order, { OrderDocument } from '../models/order.model';
+import Address from '@src/models/address.model';
 
 export const createUser = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void | Response> => {
-  const { name, email, password, confirmPassword } = req.body;
+  const { firstName, lastName, username, email, password, confirmPassword } =
+    req.body;
 
   try {
     const newUser = await User.create({
-      name,
+      firstName,
+      lastName,
+      username,
       email,
       password,
       confirmPassword,
@@ -39,35 +41,6 @@ export const createUser = async (
     });
   } catch (error: any) {
     return next(error);
-  }
-};
-
-export const createOrUpdate = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  const { name, avatar, email } = req.user;
-  try {
-    const user = await User.findOneAndUpdate(
-      { email },
-      { name, avatar },
-      { new: true }
-    );
-
-    if (user) {
-      console.log('USER UPDATED', user);
-      res.json(user);
-    } else {
-      const newUser = await new User({
-        email,
-        name: email.split('@')[0],
-        avatar,
-      }).save();
-      console.log('USER CREATED', newUser);
-      res.json(newUser);
-    }
-  } catch (error: any) {
-    console.log(error.message);
   }
 };
 
@@ -89,9 +62,8 @@ export const updateMe = async (
   }
 
   // We use User.findByIdAndUpdate() now since we are not updating password and thus do not require validations
-  const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
-    new: true,
-    runValidators: true,
+  const updatedUser = await User.update(filteredBody, {
+    where: { id: req.user.id },
   });
 
   return res.json({
@@ -105,7 +77,7 @@ export const deleteMe = async (
   req: IAuthRequest,
   res: Response
 ): Promise<void | Response> => {
-  await User.findByIdAndUpdate(req.user._id, { isActive: false });
+  await User.update({ isActive: false }, { where: { id: req.user.id } });
 
   res.status(204).json({ status: true, data: null });
 };
@@ -116,7 +88,7 @@ export const changePassword = async (
   next: NextFunction
 ): Promise<void | Response> => {
   // Check if user exists - Find the user by id
-  const existingUser = await User.findById(req.user.id).select('+password');
+  const existingUser = await User.findOne({ where: { id: req.user.id } });
   if (!existingUser) return next(new AppError('user invalid', 400));
 
   // Verify current password
@@ -140,97 +112,106 @@ export const changePassword = async (
   );
 };
 
-// USING HANDLER FACTORY
-export const getAllUsers = factory.getAll(User);
-export const getUser = factory.getOne(User);
-export const updateUser = factory.updateOne(User);
-export const deleteUser = factory.deleteOne(User);
-
 export const getCurrentUser = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  User.findOne({ email: req.user.email }).exec((error, existingUser) => {
-    console.log(error, existingUser);
-    if (error || !existingUser) throw new Error(error?.message);
+  try {
+    const existingUser = await User.findOne({
+      where: { email: req.user.email },
+    });
+    if (!existingUser) throw new Error('User does not exist');
 
     res.json(existingUser);
-  });
+  } catch (error: any | null) {
+    console.log(error.message);
+    res.status(500).json(error.message);
+  }
 };
 
 export const saveUserAddress = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  await User.findOneAndUpdate(
-    { email: req.user.email },
-    { address: req.body.address }
-  ).exec();
+  try {
+    const existingUser = await User.findOne({
+      where: { email: req.user.email },
+    });
+    if (!existingUser) throw new Error('User does not exist');
 
-  res.json({ ok: true });
+    // const addresses = await existingUser.getAddresses();
+    // addresses.findByPk(req.params.addressId);
+    await Address.update(req.body, {
+      where: { userId: req.user.id, id: req.params.addressId },
+    });
+
+    res.json(existingUser);
+  } catch (error: any | null) {
+    console.log(error.message);
+    res.status(500).json(error.message);
+  }
 };
 
-export const addToWishlist = async (
+// export const getAllOrders = async (
+//   _req: Request,
+//   res: Response
+// ): Promise<void> => {
+//   const allOrders: OrderDocument[] = await Order.find({})
+//     .sort('-createdAt')
+//     .populate('products.product')
+//     .exec();
+
+//   res.json(allOrders);
+// };
+
+export const updateReservationStatus = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { productId } = req.body;
-
-  await User.findOneAndUpdate(
-    { email: req.user.email },
-    { $addToSet: { wishlist: productId } } // This will manage duplicate
-  ).exec();
-
-  res.json({ ok: true });
+  res.json({ msg: 'updated' });
 };
 
-export const wishlist = async (req: Request, res: Response): Promise<void> => {
-  const userWishList = await User.findOne({ email: req.user.email })
-    .select('wishlist')
-    .populate('wishlist')
-    .exec();
-
-  res.json(userWishList);
-};
-
-export const removeFromWishlist = async (
-  req: Request,
-  res: Response
-): Promise<void | Response> => {
-  const { productId } = req.params;
-  await User.findOneAndUpdate(
-    { email: req.user.email },
-    { $pull: { wishlist: productId } }
-  ).exec();
-
-  res.json({ ok: true });
-};
-
-export const getAllOrders = async (
-  _req: Request,
-  res: Response
-): Promise<void> => {
-  const allOrders: OrderDocument[] = await Order.find({})
-    .sort('-createdAt')
-    .populate('products.product')
-    .exec();
-
-  res.json(allOrders);
-};
-
-export const updateOrderStatus = async (
+export const getAllUsers = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { orderId, orderStatus } = req.body;
+  console.log('getAllUsers');
+  try {
+    const users = await User.findAll({
+      attributes: [
+        'firstName',
+        'lastName',
+        'email',
+        'createdAt',
+        'avatar',
+        'primaryAddress',
+      ],
+      include: 'addresses',
+    });
 
-  const updated: OrderDocument | null = await Order.findByIdAndUpdate(
-    orderId,
-    { orderStatus },
-    { new: true }
-  ).exec();
+    res.json({ status: true, data: users });
+  } catch (error: any | null) {
+    console.log(error.message);
+    res.status(500).json(error.message);
+  }
+};
 
-  res.json(updated);
+export const getUser = async (req: Request, res: Response): Promise<void> => {
+  res.json({ msg: 'updated' });
+};
+
+export const deleteUser = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  res.json({ msg: 'updated' });
+};
+
+export const updateUser = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  res.json({ msg: 'updated' });
 };
 
 // MIDDLEWARES
